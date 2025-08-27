@@ -1,0 +1,28 @@
+# Python
+__pycache__/
+*.py[cod]
+*.so
+.env
+venv/
+*.egg-info/
+
+# Database
+*.db
+*.sqlite*
+
+# Logs
+*.log
+
+# VS Code
+.vscode/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Node.js / Next.js
+node_modules/
+.next/
+npm-debug.log*
+.npm
+.eslintcache
