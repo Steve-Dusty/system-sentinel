@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
-import { useAuth } from '../../contexts/AuthContext';
 import { MonitoredService } from '../types';
 import LatencyChart from '../components/charts/LatencyChart';
 import ErrorRateChart from '../components/charts/ErrorRateChart';
@@ -30,7 +29,6 @@ interface ServiceMetrics {
 export default function ServiceDetailPage() {
   const params = useParams();
   const router = useRouter();
-  const { isAuthenticated, isLoading } = useAuth();
   const [service, setService] = useState<MonitoredService | null>(null);
   const [metrics, setMetrics] = useState<ServiceMetrics | null>(null);
   const [chartData, setChartData] = useState({
@@ -39,13 +37,6 @@ export default function ServiceDetailPage() {
     traffic: [] as any[],
     saturation: [] as any[],
   });
-
-  // Redirect if not authenticated
-  useEffect(() => {
-    if (!isLoading && !isAuthenticated) {
-      router.push('/');
-    }
-  }, [isAuthenticated, isLoading, router]);
 
   // Load mock data from JSON file
   useEffect(() => {
@@ -153,16 +144,12 @@ export default function ServiceDetailPage() {
     }
   }, [service]);
 
-  if (isLoading) {
+  if (!service || !metrics) {
     return (
       <div className="flex items-center justify-center h-screen">
-        <div className="text-xl">Loading...</div>
+        <div className="text-xl">Loading service data...</div>
       </div>
     );
-  }
-
-  if (!isAuthenticated || !service || !metrics) {
-    return null;
   }
 
   const getAvailabilityStatus = (availability: number) => {

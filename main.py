@@ -1,38 +1,16 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from contextlib import asynccontextmanager
-from sqlmodel import Session
-from datetime import datetime
 
 from core.config import settings
 from api.endpoints import router
-from db.session import create_tables, engine
-from auth.security import get_user_by_email, get_password_hash
-from core.models import User
+from db.session import create_tables
 
 
 def init_db():
-    """Initialize database with admin user."""
+    """Initialize database tables."""
     create_tables()
-    
-    # Create admin user if it doesn't exist
-    with Session(engine) as db:
-        admin_user = get_user_by_email(db, settings.admin_email)
-        if not admin_user:
-            admin_user_data = User(
-                email=settings.admin_email,
-                username="admin",
-                full_name="System Administrator",
-                hashed_password=get_password_hash(settings.admin_password),
-                is_active=True,
-                is_superuser=True,
-                created_at=datetime.utcnow()
-            )
-            db.add(admin_user_data)
-            db.commit()
-            print(f"✅ Admin user created with email: {settings.admin_email}")
-        else:
-            print(f"ℹ️  Admin user already exists: {settings.admin_email}")
+    print("✅ Database tables created successfully")
 
 
 @asynccontextmanager
@@ -48,7 +26,7 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(
     title="System-Sentinel",
-    description="Backend for the System-Sentinel anomaly detection dashboard with user authentication.",
+    description="Backend for the System-Sentinel anomaly detection dashboard.",
     version="0.1.0",
     lifespan=lifespan
 )
@@ -62,7 +40,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Include authentication and user management routes
+# Include API routes
 app.include_router(router, prefix="/api")
 
 
@@ -72,8 +50,7 @@ def read_root():
     return {
         "message": "System-Sentinel Backend is running.",
         "version": "0.1.0",
-        "docs": "/docs",
-        "admin_email": settings.admin_email
+        "docs": "/docs"
     }
 
 
